@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>網頁式分組抽籤工具</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #d1d5db;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --danger: #b91c1c;
+      --danger-bg: #fee2e2;
+      --ok: #047857;
+      --ok-bg: #d1fae5;
+      --warn: #92400e;
+      --warn-bg: #fef3c7;
+      --shadow: 0 14px 35px rgba(15, 23, 42, 0.08);
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.08), transparent 36%),
+        linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 28px 20px 14px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0 0 8px;
+      font-size: clamp(28px, 4vw, 44px);
+      letter-spacing: 0.04em;
+    }
+
+    header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    main {
+      width: min(1120px, calc(100% - 28px));
+      margin: 0 auto 40px;
+    }
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid rgba(209, 213, 219, 0.8);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 22px;
+      margin: 16px 0;
+    }
+
+    .card h2 {
+      margin: 0 0 16px;
+      font-size: 22px;
+    }
+
+    .card h3 {
+      margin: 18px 0 10px;
+      font-size: 18px;
+    }
+
+    label {
+      display: block;
+      font-weight: 700;
+      margin: 14px 0 8px;
+    }
+
+    input[type="number"],
+    input[type="text"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 13px 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      font-size: 17px;
+      outline: none;
+    }
+
+    textarea {
+      min-height: 140px;
+      resize: vertical;
+      line-height: 1.65;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .row > * {
+      flex: 1;
+      min-width: 180px;
+    }
+
+    .radio-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 10px 0;
+    }
+
+    .radio-card {
+      flex: 1;
+      min-width: 220px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      cursor: pointer;
+      background: #fff;
+    }
+
+    .radio-card input {
+      margin-right: 8px;
+    }
+
+    .radio-card strong {
+      display: inline-block;
+      margin-bottom: 6px;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+      margin: 8px 0 0;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 18px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    button.primary {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    button.primary:hover {
+      background: var(--primary-dark);
+    }
+
+    button.danger {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    button.ghost {
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+
+    button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .summary {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      line-height: 1.8;
+      white-space: pre-wrap;
+    }
+
+    .message {
+      margin-top: 14px;
+      border-radius: 14px;
+      padding: 14px;
+      display: none;
+      line-height: 1.7;
+    }
+
+    .message.show {
+      display: block;
+    }
+
+    .message.error {
+      background: var(--danger-bg);
+      color: var(--danger);
+      border: 1px solid #fecaca;
+    }
+
+    .message.ok {
+      background: var(--ok-bg);
+      color: var(--ok);
+      border: 1px solid #a7f3d0;
+    }
+
+    .message.warn {
+      background: var(--warn-bg);
+      color: var(--warn);
+      border: 1px solid #fde68a;
+    }
+
+    .draw-panel {
+      display: grid;
+      grid-template-columns: minmax(280px, 420px) 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .big-result {
+      text-align: center;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 18px;
+      padding: 28px 18px;
+      margin-top: 18px;
+      min-height: 150px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .big-result .small {
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .big-result .main {
+      font-size: clamp(28px, 5vw, 50px);
+      font-weight: 900;
+      line-height: 1.35;
+      margin-top: 8px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 0 0 16px;
+    }
+
+    .stat {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 28px;
+      margin-top: 4px;
+    }
+
+    .groups {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
+    }
+
+    .group-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    .group-head {
+      padding: 12px 14px;
+      font-weight: 900;
+      background: #f3f4f6;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .group-body {
+      min-height: 72px;
+      padding: 12px 14px;
+      line-height: 1.8;
+    }
+
+    .empty {
+      color: var(--muted);
+    }
+
+    .history-list {
+      max-height: 260px;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      padding: 10px 14px;
+      line-height: 1.8;
+    }
+
+    .progress-wrap {
+      background: #e5e7eb;
+      border-radius: 999px;
+      overflow: hidden;
+      height: 14px;
+      margin: 8px 0 18px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: var(--primary);
+      transition: width 0.25s ease;
+    }
+
+    .result-output {
+      width: 100%;
+      min-height: 420px;
+      font-family: "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.8;
+      white-space: pre;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #eef2ff;
+      color: #3730a3;
+      font-weight: 700;
+      margin: 3px;
+      font-size: 14px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 840px) {
+      .grid,
+      .draw-panel {
+        grid-template-columns: 1fr;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      header,
+      .no-print,
+      #setupPage,
+      #drawPage {
+        display: none !important;
+      }
+
+      main {
+        width: 100%;
+        margin: 0;
+      }
+
+      .page {
+        display: none;
+      }
+
+      #resultPage {
+        display: block !important;
+      }
+
+      .card {
+        box-shadow: none;
+        border: 0;
+      }
+
+      textarea {
+        border: 0;
+        min-height: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>網頁式分組抽籤工具</h1>
+    <p>輸入班級人數與分組條件後，逐次抽籤並平均分配各組人數。</p>
+  </header>
+
+  <main>
+    <section id="setupPage" class="page active">
+      <div class="grid">
+        <div class="card">
+          <h2>一、設定抽籤條件</h2>
+
+          <div class="row">
+            <div>
+              <label for="studentCount">班級人數</label>
+              <input id="studentCount" type="number" min="1" step="1" placeholder="例如：30" />
+            </div>
+            <div>
+              <label for="groupCount">分組數量</label>
+              <input id="groupCount" type="number" min="1" step="1" placeholder="例如：6" />
+            </div>
+          </div>
+
+          <label>組別名稱設定</label>
+          <div class="radio-row">
+            <label class="radio-card">
+              <input type="radio" name="nameMode" value="manual" checked />
+              <strong>手動輸入組名</strong><br />
+              <span class="hint">每行一個組名，數量需等於分組數量。</span>
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="nameMode" value="random" />
+              <strong>隨機產生組名</strong><br />
+              <span class="hint">系統自動從內建詞庫產生不重複組名。</span>
+            </label>
+          </div>
+
+          <div id="manualNamesBox">
+            <label for="manualGroupNames">手動組名</label>
+            <textarea id="manualGroupNames" placeholder="例如：
+第一組
+第二組
+第三組"></textarea>
+          </div>
+
+          <div id="randomNamesBox" class="hidden">
+            <label>隨機組名預覽</label>
+            <div id="randomNamePreview" class="summary"></div>
+            <div class="btn-row">
+              <button type="button" class="ghost" id="regenNamesBtn">重新產生組名</button>
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button type="button" class="primary" id="previewBtn">產生條件摘要</button>
+            <button type="button" id="fillDefaultBtn">填入範例</button>
+            <button type="button" class="ghost" id="clearSetupBtn">清除設定</button>
+          </div>
+
+          <div id="setupMessage" class="message"></div>
+        </div>
+
+        <div class="card">
+          <h2>二、確認條件</h2>
+          <div id="conditionSummary" class="summary">尚未產生條件摘要。</div>
+          <div class="btn-row">
+            <button type="button" class="primary" id="startBtn" disabled>確認並進入抽籤頁面</button>
+          </div>
+
+          <h3>分配規則</h3>
+          <p class="hint">
+            系統會先依班級人數與分組數量計算每組容量。抽籤時只會從尚未滿額的組別中隨機分配，避免單一組別人數過多。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="drawPage" class="page">
+      <div class="draw-panel">
+        <div class="card">
+          <h2>抽籤</h2>
+
+          <div class="stats">
+            <div class="stat">總人數<strong id="statTotal">0</strong></div>
+            <div class="stat">已抽<strong id="statDrawn">0</strong></div>
+            <div class="stat">未抽<strong id="statRemain">0</strong></div>
+          </div>
+
+          <div class="progress-wrap">
+            <div id="progressBar" class="progress-bar"></div>
+          </div>
+
+          <label for="drawCode">抽籤人或抽籤紀錄代號</label>
+          <input id="drawCode" type="text" placeholder="例如：座號01、王小明、A01" />
+
+          <div class="btn-row">
+            <button type="button" class="primary" id="drawBtn">開始抽籤</button>
+            <button type="button" id="autoFillCodeBtn">自動帶入下一位代號</button>
+          </div>
+
+          <div id="drawMessage" class="message"></div>
+
+          <div class="big-result">
+            <div class="small">本次抽籤結果</div>
+            <div id="latestResult" class="main">尚未抽籤</div>
+          </div>
+
+          <div class="btn-row no-print">
+            <button type="button" class="ghost" id="backSetupBtn">返回設定</button>
+            <button type="button" class="danger" id="resetAllBtn">重新開始</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>即時分組結果</h2>
+          <div id="groupCards" class="groups"></div>
+
+          <h3>抽籤順序</h3>
+          <div id="historyList" class="history-list">
+            <span class="empty">尚無抽籤紀錄。</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="resultPage" class="page">
+      <div class="card">
+        <h2>本次分組抽籤結果</h2>
+        <textarea id="resultOutput" class="result-output" readonly></textarea>
+
+        <div class="btn-row no-print">
+          <button type="button" class="primary" id="copyResultBtn">複製結果文字</button>
+          <button type="button" id="printResultBtn">列印結果</button>
+          <button type="button" class="ghost" id="returnDrawBtn">返回抽籤紀錄</button>
+          <button type="button" class="danger" id="newDrawBtn">重新開始</button>
+        </div>
+
+        <div id="resultMessage" class="message"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const state = {
+      total: 0,
+      groupCount: 0,
+      groupNames: [],
+      maxSizes: [],
+      groups: [],
+      history: [],
+      usedCodes: new Set(),
+      nextAutoNumber: 1,
+      prepared: false
+    };
+
+    const namePool = [
+      "星辰組", "海浪組", "森林組", "火焰組", "雲朵組", "山嶺組", "銀河組", "晨光組",
+      "磐石組", "飛鳥組", "鯨魚組", "企鵝組", "海豚組", "珊瑚組", "微風組", "月影組",
+      "極光組", "遠航組", "島嶼組", "潮汐組", "種子組", "光合作用組", "探究組", "羅盤組",
+      "藍海組", "白鷺組", "綠洲組", "星火組", "晴空組", "雨林組", "方舟組", "稜鏡組"
+    ];
+
+    const $ = (id) => document.getElementById(id);
+
+    const els = {
+      setupPage: $("setupPage"),
+      drawPage: $("drawPage"),
+      resultPage: $("resultPage"),
+      studentCount: $("studentCount"),
+      groupCount: $("groupCount"),
+      manualGroupNames: $("manualGroupNames"),
+      manualNamesBox: $("manualNamesBox"),
+      randomNamesBox: $("randomNamesBox"),
+      randomNamePreview: $("randomNamePreview"),
+      setupMessage: $("setupMessage"),
+      conditionSummary: $("conditionSummary"),
+      previewBtn: $("previewBtn"),
+      startBtn: $("startBtn"),
+      fillDefaultBtn: $("fillDefaultBtn"),
+      clearSetupBtn: $("clearSetupBtn"),
+      regenNamesBtn: $("regenNamesBtn"),
+      statTotal: $("statTotal"),
+      statDrawn: $("statDrawn"),
+      statRemain: $("statRemain"),
+      progressBar: $("progressBar"),
+      drawCode: $("drawCode"),
+      drawBtn: $("drawBtn"),
+      autoFillCodeBtn: $("autoFillCodeBtn"),
+      drawMessage: $("drawMessage"),
+      latestResult: $("latestResult"),
+      groupCards: $("groupCards"),
+      historyList: $("historyList"),
+      backSetupBtn: $("backSetupBtn"),
+      resetAllBtn: $("resetAllBtn"),
+      resultOutput: $("resultOutput"),
+      copyResultBtn: $("copyResultBtn"),
+      printResultBtn: $("printResultBtn"),
+      returnDrawBtn: $("returnDrawBtn"),
+      newDrawBtn: $("newDrawBtn"),
+      resultMessage: $("resultMessage")
+    };
+
+    function showPage(pageId) {
+      [els.setupPage, els.drawPage, els.resultPage].forEach(page => page.classList.remove("active"));
+      $(pageId).classList.add("active");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function showMessage(el, type, text) {
+      el.className = "message show " + type;
+      el.textContent = text;
+    }
+
+    function clearMessage(el) {
+      el.className = "message";
+      el.textContent = "";
+    }
+
+    function getNameMode() {
+      return document.querySelector("input[name='nameMode']:checked").value;
+    }
+
+    function shuffle(array) {
+      const copy = [...array];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function generateRandomNames(count) {
+      const shuffled = shuffle(namePool);
+      const names = [];
+      for (let i = 0; i < count; i++) {
+        if (i < shuffled.length) {
+          names.push(shuffled[i]);
+        } else {
+          names.push("隨機組" + (i + 1));
+        }
+      }
+      return names;
+    }
+
+    function updateNameModeUI() {
+      const mode = getNameMode();
+      if (mode === "manual") {
+        els.manualNamesBox.classList.remove("hidden");
+        els.randomNamesBox.classList.add("hidden");
+      } else {
+        els.manualNamesBox.classList.add("hidden");
+        els.randomNamesBox.classList.remove("hidden");
+        refreshRandomPreview();
+      }
+      invalidatePrepared();
+    }
+
+    function refreshRandomPreview() {
+      const count = parsePositiveInt(els.groupCount.value);
+      if (!count) {
+        els.randomNamePreview.textContent = "請先輸入分組數量。";
+        return;
+      }
+      const names = generateRandomNames(count);
+      els.randomNamePreview.innerHTML = names.map(name => `<span class="pill">${escapeHtml(name)}</span>`).join("");
+      els.randomNamePreview.dataset.names = JSON.stringify(names);
+    }
+
+    function parsePositiveInt(value) {
+      const n = Number(value);
+      if (!Number.isInteger(n) || n <= 0) return null;
+      return n;
+    }
+
+    function escapeHtml(text) {
+      return String(text)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function getManualNames() {
+      return els.manualGroupNames.value
+        .split(/\r?\n/)
+        .map(x => x.trim())
+        .filter(Boolean);
+    }
+
+    function getRandomNames(count) {
+      try {
+        const existing = JSON.parse(els.randomNamePreview.dataset.names || "[]");
+        if (existing.length === count) return existing;
+      } catch (e) {}
+      return generateRandomNames(count);
+    }
+
+    function calculateMaxSizes(total, groupCount) {
+      const base = Math.floor(total / groupCount);
+      const remainder = total % groupCount;
+      return Array.from({ length: groupCount }, (_, i) => base + (i < remainder ? 1 : 0));
+    }
+
+    function validateSetup() {
+      const total = parsePositiveInt(els.studentCount.value);
+      const groupCount = parsePositiveInt(els.groupCount.value);
+
+      if (!total) return { ok: false, message: "班級人數必須是大於0的整數。" };
+      if (!groupCount) return { ok: false, message: "分組數量必須是大於0的整數。" };
+      if (groupCount > total) return { ok: false, message: "分組數量不能大於班級人數。" };
+
+      let names;
+      if (getNameMode() === "manual") {
+        names = getManualNames();
+        if (names.length !== groupCount) {
+          return { ok: false, message: `手動組名數量需等於分組數量。目前輸入 ${names.length} 個組名，分組數量為 ${groupCount}。` };
+        }
+      } else {
+        names = getRandomNames(groupCount);
+      }
+
+      const duplicateNames = names.filter((name, idx) => names.indexOf(name) !== idx);
+      if (duplicateNames.length > 0) {
+        return { ok: false, message: "組別名稱不可重複。" };
+      }
+
+      return { ok: true, total, groupCount, names };
+    }
+
+    function buildSummary(total, groupCount, names) {
+      const sizes = calculateMaxSizes(total, groupCount);
+      const sizeText = summarizeSizes(sizes);
+      return [
+        `班級人數：${total}人`,
+        `分組數量：${groupCount}組`,
+        `分配方式：${sizeText}`,
+        `組別名稱：${names.join("、")}`,
+        "",
+        "各組容量：",
+        ...names.map((name, i) => `${name}：${sizes[i]}人`)
+      ].join("\n");
+    }
+
+    function summarizeSizes(sizes) {
+      const map = new Map();
+      sizes.forEach(size => map.set(size, (map.get(size) || 0) + 1));
+      const parts = [...map.entries()]
+        .sort((a, b) => b[0] - a[0])
+        .map(([size, count]) => `${count}組${size}人`);
+      return parts.join("，");
+    }
+
+    function invalidatePrepared() {
+      state.prepared = false;
+      els.startBtn.disabled = true;
+    }
+
+    function previewSetup() {
+      clearMessage(els.setupMessage);
+      const result = validateSetup();
+      if (!result.ok) {
+        showMessage(els.setupMessage, "error", result.message);
+        els.conditionSummary.textContent = "尚未產生有效條件摘要。";
+        els.startBtn.disabled = true;
+        return;
+      }
+
+      const { total, groupCount, names } = result;
+      els.conditionSummary.textContent = buildSummary(total, groupCount, names);
+      state.prepared = true;
+      els.startBtn.disabled = false;
+      showMessage(els.setupMessage, "ok", "條件摘要已產生。確認後可進入抽籤頁面。");
+    }
+
+    function startDraw() {
+      const result = validateSetup();
+      if (!result.ok) {
+        showMessage(els.setupMessage, "error", result.message);
+        return;
+      }
+
+      state.total = result.total;
+      state.groupCount = result.groupCount;
+      state.groupNames = result.names;
+      state.maxSizes = calculateMaxSizes(result.total, result.groupCount);
+      state.groups = state.groupNames.map((name, index) => ({
+        name,
+        max: state.maxSizes[index],
+        members: []
+      }));
+      state.history = [];
+      state.usedCodes = new Set();
+      state.nextAutoNumber = 1;
+
+      clearMessage(els.drawMessage);
+      els.latestResult.textContent = "尚未抽籤";
+      els.drawCode.value = "";
+
+      renderDrawPage();
+      showPage("drawPage");
+      setTimeout(() => els.drawCode.focus(), 200);
+    }
+
+    function renderDrawPage() {
+      const drawn = state.history.length;
+      const remain = state.total - drawn;
+      els.statTotal.textContent = state.total;
+      els.statDrawn.textContent = drawn;
+      els.statRemain.textContent = remain;
+      els.progressBar.style.width = state.total ? `${(drawn / state.total) * 100}%` : "0%";
+
+      els.groupCards.innerHTML = state.groups.map(group => {
+        const members = group.members.length
+          ? group.members.map(member => `<div>${escapeHtml(member)}</div>`).join("")
+          : `<span class="empty">尚無成員</span>`;
+        return `
+          <div class="group-card">
+            <div class="group-head">
+              <span>${escapeHtml(group.name)}</span>
+              <span>${group.members.length}/${group.max}</span>
+            </div>
+            <div class="group-body">${members}</div>
+          </div>
+        `;
+      }).join("");
+
+      if (state.history.length === 0) {
+        els.historyList.innerHTML = `<span class="empty">尚無抽籤紀錄。</span>`;
+      } else {
+        els.historyList.innerHTML = state.history
+          .map((item, idx) => `<div>第${idx + 1}抽：${escapeHtml(item.code)} → ${escapeHtml(item.groupName)}</div>`)
+          .join("");
+        els.historyList.scrollTop = els.historyList.scrollHeight;
+      }
+
+      els.drawBtn.disabled = remain <= 0;
+      els.autoFillCodeBtn.disabled = remain <= 0;
+    }
+
+    function drawGroup() {
+      clearMessage(els.drawMessage);
+
+      if (state.history.length >= state.total) {
+        completeDraw();
+        return;
+      }
+
+      const code = els.drawCode.value.trim();
+      if (!code) {
+        showMessage(els.drawMessage, "error", "請先輸入抽籤人或抽籤紀錄代號。");
+        els.drawCode.focus();
+        return;
+      }
+
+      if (state.usedCodes.has(code)) {
+        showMessage(els.drawMessage, "error", "此代號已完成抽籤，不能重複抽籤。");
+        els.drawCode.select();
+        return;
+      }
+
+      const availableGroups = state.groups.filter(group => group.members.length < group.max);
+      if (availableGroups.length === 0) {
+        completeDraw();
+        return;
+      }
+
+      const minCurrentSize = Math.min(...availableGroups.map(group => group.members.length));
+      const balancedCandidates = availableGroups.filter(group => group.members.length === minCurrentSize);
+      const chosen = balancedCandidates[Math.floor(Math.random() * balancedCandidates.length)];
+
+      chosen.members.push(code);
+      state.usedCodes.add(code);
+      state.history.push({ code, groupName: chosen.name });
+
+      els.latestResult.textContent = `抽籤代號「${code}」是「${chosen.name}」`;
+      showMessage(els.drawMessage, "ok", `抽籤完成：${code} → ${chosen.name}`);
+      els.drawCode.value = "";
+      renderDrawPage();
+
+      if (state.history.length >= state.total) {
+        setTimeout(completeDraw, 450);
+      } else {
+        els.drawCode.focus();
+      }
+    }
+
+    function completeDraw() {
+      renderResultPage();
+      showPage("resultPage");
+    }
+
+    function renderResultPage() {
+      const now = new Date();
+      const timestamp = now.toLocaleString("zh-TW", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+
+      const lines = [];
+      lines.push("本次分組抽籤結果");
+      lines.push(`產生時間：${timestamp}`);
+      lines.push(`班級人數：${state.total}人`);
+      lines.push(`分組數量：${state.groupCount}組`);
+      lines.push(`分配方式：${summarizeSizes(state.maxSizes)}`);
+      lines.push("");
+      lines.push("一、分組名單");
+      lines.push("");
+
+      state.groups.forEach(group => {
+        lines.push(`${group.name}（${group.members.length}/${group.max}人）`);
+        if (group.members.length) {
+          group.members.forEach(member => lines.push(`- ${member}`));
+        } else {
+          lines.push("- 無");
+        }
+        lines.push("");
+      });
+
+      lines.push("二、抽籤順序");
+      state.history.forEach((item, index) => {
+        lines.push(`第${index + 1}抽：${item.code} → ${item.groupName}`);
+      });
+
+      els.resultOutput.value = lines.join("\n");
+      clearMessage(els.resultMessage);
+    }
+
+    async function copyResult() {
+      try {
+        await navigator.clipboard.writeText(els.resultOutput.value);
+        showMessage(els.resultMessage, "ok", "結果文字已複製。");
+      } catch (err) {
+        els.resultOutput.select();
+        document.execCommand("copy");
+        showMessage(els.resultMessage, "ok", "結果文字已複製。");
+      }
+    }
+
+    function resetAll() {
+      state.total = 0;
+      state.groupCount = 0;
+      state.groupNames = [];
+      state.maxSizes = [];
+      state.groups = [];
+      state.history = [];
+      state.usedCodes = new Set();
+      state.nextAutoNumber = 1;
+      state.prepared = false;
+
+      els.studentCount.value = "";
+      els.groupCount.value = "";
+      els.manualGroupNames.value = "";
+      els.conditionSummary.textContent = "尚未產生條件摘要。";
+      els.randomNamePreview.textContent = "";
+      els.latestResult.textContent = "尚未抽籤";
+      els.drawCode.value = "";
+      els.resultOutput.value = "";
+      els.startBtn.disabled = true;
+      clearMessage(els.setupMessage);
+      clearMessage(els.drawMessage);
+      clearMessage(els.resultMessage);
+      renderDrawPage();
+      showPage("setupPage");
+    }
+
+    function fillDefault() {
+      els.studentCount.value = "30";
+      els.groupCount.value = "6";
+      document.querySelector("input[name='nameMode'][value='manual']").checked = true;
+      updateNameModeUI();
+      els.manualGroupNames.value = ["第一組", "第二組", "第三組", "第四組", "第五組", "第六組"].join("\n");
+      previewSetup();
+    }
+
+    function autoFillNextCode() {
+      while (state.usedCodes.has(String(state.nextAutoNumber).padStart(2, "0"))) {
+        state.nextAutoNumber++;
+      }
+      const code = "座號" + String(state.nextAutoNumber).padStart(2, "0");
+      state.nextAutoNumber++;
+      els.drawCode.value = code;
+      els.drawCode.focus();
+      els.drawCode.select();
+    }
+
+    document.querySelectorAll("input[name='nameMode']").forEach(radio => {
+      radio.addEventListener("change", updateNameModeUI);
+    });
+
+    els.studentCount.addEventListener("input", invalidatePrepared);
+    els.groupCount.addEventListener("input", () => {
+      invalidatePrepared();
+      if (getNameMode() === "random") refreshRandomPreview();
+    });
+    els.manualGroupNames.addEventListener("input", invalidatePrepared);
+
+    els.previewBtn.addEventListener("click", previewSetup);
+    els.startBtn.addEventListener("click", startDraw);
+    els.fillDefaultBtn.addEventListener("click", fillDefault);
+    els.clearSetupBtn.addEventListener("click", resetAll);
+    els.regenNamesBtn.addEventListener("click", () => {
+      refreshRandomPreview();
+      invalidatePrepared();
+    });
+
+    els.drawBtn.addEventListener("click", drawGroup);
+    els.drawCode.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") drawGroup();
+    });
+    els.autoFillCodeBtn.addEventListener("click", autoFillNextCode);
+    els.backSetupBtn.addEventListener("click", () => showPage("setupPage"));
+    els.resetAllBtn.addEventListener("click", resetAll);
+
+    els.copyResultBtn.addEventListener("click", copyResult);
+    els.printResultBtn.addEventListener("click", () => window.print());
+    els.returnDrawBtn.addEventListener("click", () => showPage("drawPage"));
+    els.newDrawBtn.addEventListener("click", resetAll);
+
+    updateNameModeUI();
+  </script>
+</body>
+</html>

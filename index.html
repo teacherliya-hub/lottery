@@ -3,24 +3,26 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>網頁式分組抽籤工具</title>
+  <title>異世界勇者召喚工具</title>
   <style>
     :root {
-      --bg: #f5f7fb;
-      --card: #ffffff;
-      --text: #1f2937;
-      --muted: #6b7280;
-      --line: #d1d5db;
-      --primary: #2563eb;
-      --primary-dark: #1d4ed8;
+      --bg: #0f172a;
+      --card: rgba(255, 255, 255, 0.94);
+      --text: #172033;
+      --muted: #64748b;
+      --line: #c7d2fe;
+      --primary: #7c3aed;
+      --primary-dark: #5b21b6;
+      --accent: #14b8a6;
+      --gold: #f59e0b;
       --danger: #b91c1c;
       --danger-bg: #fee2e2;
       --ok: #047857;
       --ok-bg: #d1fae5;
       --warn: #92400e;
       --warn-bg: #fef3c7;
-      --shadow: 0 14px 35px rgba(15, 23, 42, 0.08);
-      --radius: 18px;
+      --shadow: 0 18px 45px rgba(30, 27, 75, 0.22);
+      --radius: 20px;
     }
 
     * {
@@ -31,32 +33,71 @@
       margin: 0;
       font-family: "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;
       background:
-        radial-gradient(circle at top left, rgba(37, 99, 235, 0.08), transparent 36%),
-        linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+        radial-gradient(circle at 12% 10%, rgba(20, 184, 166, 0.34), transparent 28%),
+        radial-gradient(circle at 88% 12%, rgba(245, 158, 11, 0.26), transparent 24%),
+        radial-gradient(circle at 50% 100%, rgba(124, 58, 237, 0.42), transparent 42%),
+        linear-gradient(135deg, #0f172a 0%, #312e81 48%, #064e3b 100%);
       color: var(--text);
       min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        radial-gradient(circle, rgba(255,255,255,0.42) 1px, transparent 1.6px),
+        radial-gradient(circle, rgba(250,204,21,0.38) 1px, transparent 1.8px);
+      background-size: 64px 64px, 110px 110px;
+      background-position: 0 0, 18px 36px;
+      opacity: 0.24;
     }
 
     header {
-      padding: 28px 20px 14px;
+      padding: 34px 20px 16px;
       text-align: center;
+      color: #fff;
+      position: relative;
+      z-index: 1;
     }
 
     header h1 {
-      margin: 0 0 8px;
-      font-size: clamp(28px, 4vw, 44px);
-      letter-spacing: 0.04em;
+      margin: 0 0 10px;
+      font-size: clamp(30px, 5vw, 54px);
+      letter-spacing: 0.08em;
+      text-shadow: 0 0 18px rgba(20, 184, 166, 0.85), 0 5px 18px rgba(0, 0, 0, 0.32);
+    }
+
+    header h1::before {
+      content: "QUEST";
+      display: block;
+      width: fit-content;
+      margin: 0 auto 8px;
+      padding: 4px 14px;
+      border: 1px solid rgba(253, 230, 138, 0.88);
+      border-radius: 999px;
+      color: #fde68a;
+      font-size: 13px;
+      letter-spacing: 0.24em;
+      background: rgba(15, 23, 42, 0.35);
+      box-shadow: 0 0 14px rgba(245, 158, 11, 0.32);
     }
 
     header p {
       margin: 0;
-      color: var(--muted);
-      font-size: 16px;
+      color: #dbeafe;
+      font-size: 17px;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.34);
     }
 
     main {
       width: min(1120px, calc(100% - 28px));
       margin: 0 auto 40px;
+      position: relative;
+      z-index: 1;
     }
 
     .page {
@@ -75,16 +116,19 @@
 
     .card {
       background: var(--card);
-      border: 1px solid rgba(209, 213, 219, 0.8);
+      border: 1px solid rgba(199, 210, 254, 0.9);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       padding: 22px;
       margin: 16px 0;
+      backdrop-filter: blur(10px);
     }
 
     .card h2 {
       margin: 0 0 16px;
       font-size: 22px;
+      color: #312e81;
+      letter-spacing: 0.03em;
     }
 
     .card h3 {
@@ -188,8 +232,9 @@
     }
 
     button.primary {
-      background: var(--primary);
+      background: linear-gradient(135deg, var(--primary), var(--accent));
       color: #fff;
+      box-shadow: 0 8px 18px rgba(91, 33, 182, 0.22);
     }
 
     button.primary:hover {
@@ -212,7 +257,7 @@
     }
 
     .summary {
-      background: #f8fafc;
+      background: linear-gradient(135deg, #f8fafc, #eef2ff);
       border: 1px solid var(--line);
       border-radius: 14px;
       padding: 14px;
@@ -259,8 +304,10 @@
 
     .big-result {
       text-align: center;
-      background: #eff6ff;
-      border: 1px solid #bfdbfe;
+      background:
+        radial-gradient(circle at top, rgba(253, 230, 138, 0.38), transparent 42%),
+        linear-gradient(135deg, #eef2ff, #ccfbf1);
+      border: 1px solid #99f6e4;
       border-radius: 18px;
       padding: 28px 18px;
       margin-top: 18px;
@@ -268,6 +315,7 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
+      box-shadow: inset 0 0 24px rgba(124, 58, 237, 0.12);
     }
 
     .big-result .small {
@@ -280,6 +328,8 @@
       font-weight: 900;
       line-height: 1.35;
       margin-top: 8px;
+      color: #4c1d95;
+      text-shadow: 0 0 14px rgba(20, 184, 166, 0.22);
     }
 
     .stats {
@@ -319,7 +369,8 @@
     .group-head {
       padding: 12px 14px;
       font-weight: 900;
-      background: #f3f4f6;
+      background: linear-gradient(135deg, #ede9fe, #ccfbf1);
+      color: #312e81;
       display: flex;
       justify-content: space-between;
       gap: 8px;
@@ -356,7 +407,7 @@
     .progress-bar {
       height: 100%;
       width: 0%;
-      background: var(--primary);
+      background: linear-gradient(90deg, var(--accent), var(--primary), var(--gold));
       transition: width 0.25s ease;
     }
 
@@ -373,11 +424,12 @@
       display: inline-block;
       padding: 4px 10px;
       border-radius: 999px;
-      background: #eef2ff;
-      color: #3730a3;
+      background: #ede9fe;
+      color: #4c1d95;
       font-weight: 700;
       margin: 3px;
       font-size: 14px;
+      border: 1px solid #c4b5fd;
     }
 
     .hidden {
@@ -434,76 +486,76 @@
 </head>
 <body>
   <header>
-    <h1>網頁式分組抽籤工具</h1>
-    <p>輸入班級人數與分組條件後，逐次抽籤並平均分配各組人數。</p>
+    <h1>異世界轉生召喚</h1>
+    <p>勇者轉生到異世界，成為國家領導人，挑戰環境變遷危機。</p>
   </header>
 
   <main>
     <section id="setupPage" class="page active">
       <div class="grid">
         <div class="card">
-          <h2>一、設定抽籤條件</h2>
+          <h2>一、召喚條件設定</h2>
 
           <div class="row">
             <div>
-              <label for="studentCount">班級人數</label>
+              <label for="studentCount">轉生勇者人數</label>
               <input id="studentCount" type="number" min="1" step="1" placeholder="例如：30" />
             </div>
             <div>
-              <label for="groupCount">分組數量</label>
+              <label for="groupCount">國家團隊數量</label>
               <input id="groupCount" type="number" min="1" step="1" placeholder="例如：6" />
             </div>
           </div>
 
-          <label>組別名稱設定</label>
+          <label>國家名稱</label>
           <div class="radio-row">
             <label class="radio-card">
               <input type="radio" name="nameMode" value="manual" checked />
-              <strong>手動輸入組名</strong><br />
-              <span class="hint">每行一個組名，數量需等於分組數量。</span>
+              <strong>手動輸入國家名</strong><br />
+              <span class="hint">每行一個名字，數量需等於國家數量。</span>
             </label>
             <label class="radio-card">
               <input type="radio" name="nameMode" value="random" />
-              <strong>隨機產生組名</strong><br />
-              <span class="hint">系統自動從內建詞庫產生不重複組名。</span>
+              <strong>隨機產生國家名</strong><br />
+              <span class="hint">系統從異世界國家詞庫產生不重複名稱。</span>
             </label>
           </div>
 
           <div id="manualNamesBox">
-            <label for="manualGroupNames">手動組名</label>
+            <label for="manualGroupNames">手動國家名</label>
             <textarea id="manualGroupNames" placeholder="例如：
-第一組
-第二組
-第三組"></textarea>
+讀力國
+渡拜國
+鐘立國"></textarea>
           </div>
 
           <div id="randomNamesBox" class="hidden">
-            <label>隨機組名預覽</label>
+            <label>隨機國家名預覽</label>
             <div id="randomNamePreview" class="summary"></div>
             <div class="btn-row">
-              <button type="button" class="ghost" id="regenNamesBtn">重新產生組名</button>
+              <button type="button" class="ghost" id="regenNamesBtn">重新召喚國家名</button>
             </div>
           </div>
 
           <div class="btn-row">
-            <button type="button" class="primary" id="previewBtn">產生條件摘要</button>
-            <button type="button" id="fillDefaultBtn">填入範例</button>
-            <button type="button" class="ghost" id="clearSetupBtn">清除設定</button>
+            <button type="button" class="primary" id="previewBtn">產生任務摘要</button>
+            <button type="button" id="fillDefaultBtn">填入任務範例</button>
+            <button type="button" class="ghost" id="clearSetupBtn">清除召喚設定</button>
           </div>
 
           <div id="setupMessage" class="message"></div>
         </div>
 
         <div class="card">
-          <h2>二、確認條件</h2>
-          <div id="conditionSummary" class="summary">尚未產生條件摘要。</div>
+          <h2>二、確認轉生任務</h2>
+          <div id="conditionSummary" class="summary">尚未產生任務摘要。</div>
           <div class="btn-row">
-            <button type="button" class="primary" id="startBtn" disabled>確認並進入抽籤頁面</button>
+            <button type="button" class="primary" id="startBtn" disabled>確認並進入召喚頁面</button>
           </div>
 
-          <h3>分配規則</h3>
+          <h3>召喚規則</h3>
           <p class="hint">
-            系統會先依班級人數與分組數量計算每組容量。抽籤時只會從尚未滿額的組別中隨機分配，避免單一組別人數過多。
+            系統會先依轉生領導人人數與國家數量計算每組容量。勇者召喚時只會從尚未滿額的組別中隨機分配，避免單一組別人數過多。
           </p>
         </div>
       </div>
@@ -512,46 +564,46 @@
     <section id="drawPage" class="page">
       <div class="draw-panel">
         <div class="card">
-          <h2>抽籤</h2>
+          <h2>勇者召喚</h2>
 
           <div class="stats">
-            <div class="stat">總人數<strong id="statTotal">0</strong></div>
-            <div class="stat">已抽<strong id="statDrawn">0</strong></div>
-            <div class="stat">未抽<strong id="statRemain">0</strong></div>
+            <div class="stat">總勇者<strong id="statTotal">0</strong></div>
+            <div class="stat">已召喚<strong id="statDrawn">0</strong></div>
+            <div class="stat">未召喚<strong id="statRemain">0</strong></div>
           </div>
 
           <div class="progress-wrap">
             <div id="progressBar" class="progress-bar"></div>
           </div>
 
-          <label for="drawCode">抽籤人或抽籤紀錄代號</label>
-          <input id="drawCode" type="text" placeholder="例如：座號01、王小明、A01" />
+          <label for="drawCode">勇者召喚人或勇者召喚紀錄代號</label>
+          <input id="drawCode" type="text" placeholder="例如：座號01、王小明、勇者A01" />
 
           <div class="btn-row">
-            <button type="button" class="primary" id="drawBtn">開始抽籤</button>
-            <button type="button" id="autoFillCodeBtn">自動帶入下一位代號</button>
+            <button type="button" class="primary" id="drawBtn">開始勇者召喚</button>
+            <button type="button" id="autoFillCodeBtn">自動帶入下一位勇者</button>
           </div>
 
           <div id="drawMessage" class="message"></div>
 
           <div class="big-result">
-            <div class="small">本次抽籤結果</div>
-            <div id="latestResult" class="main">尚未抽籤</div>
+            <div class="small">本次勇者召喚結果</div>
+            <div id="latestResult" class="main">尚未勇者召喚</div>
           </div>
 
           <div class="btn-row no-print">
-            <button type="button" class="ghost" id="backSetupBtn">返回設定</button>
-            <button type="button" class="danger" id="resetAllBtn">重新開始</button>
+            <button type="button" class="ghost" id="backSetupBtn">返回任務設定</button>
+            <button type="button" class="danger" id="resetAllBtn">重新開局</button>
           </div>
         </div>
 
         <div class="card">
-          <h2>即時分組結果</h2>
+          <h2>即時國家編成</h2>
           <div id="groupCards" class="groups"></div>
 
-          <h3>抽籤順序</h3>
+          <h3>勇者召喚順序</h3>
           <div id="historyList" class="history-list">
-            <span class="empty">尚無抽籤紀錄。</span>
+            <span class="empty">尚無勇者召喚紀錄。</span>
           </div>
         </div>
       </div>
@@ -559,14 +611,14 @@
 
     <section id="resultPage" class="page">
       <div class="card">
-        <h2>本次分組抽籤結果</h2>
+        <h2>本次分組勇者召喚結果</h2>
         <textarea id="resultOutput" class="result-output" readonly></textarea>
 
         <div class="btn-row no-print">
-          <button type="button" class="primary" id="copyResultBtn">複製結果文字</button>
-          <button type="button" id="printResultBtn">列印結果</button>
-          <button type="button" class="ghost" id="returnDrawBtn">返回抽籤紀錄</button>
-          <button type="button" class="danger" id="newDrawBtn">重新開始</button>
+          <button type="button" class="primary" id="copyResultBtn">複製編成結果</button>
+          <button type="button" id="printResultBtn">列印任務名冊</button>
+          <button type="button" class="ghost" id="returnDrawBtn">返回勇者召喚紀錄</button>
+          <button type="button" class="danger" id="newDrawBtn">重新開局</button>
         </div>
 
         <div id="resultMessage" class="message"></div>
@@ -588,10 +640,11 @@
     };
 
     const namePool = [
-      "星辰組", "海浪組", "森林組", "火焰組", "雲朵組", "山嶺組", "銀河組", "晨光組",
-      "磐石組", "飛鳥組", "鯨魚組", "企鵝組", "海豚組", "珊瑚組", "微風組", "月影組",
-      "極光組", "遠航組", "島嶼組", "潮汐組", "種子組", "光合作用組", "探究組", "羅盤組",
-      "藍海組", "白鷺組", "綠洲組", "星火組", "晴空組", "雨林組", "方舟組", "稜鏡組"
+      "森林守護者", "潮汐巡禮者", "碳循環術士", "極光觀測團", "珊瑚修復隊", "風暴預報師",
+      "冰原調查兵", "藍碳鍊金會", "星火減碳團", "雨林療癒者", "海洋賢者團", "綠能工匠隊",
+      "雲端氣象局", "永續方舟隊", "淨水魔導士", "荒漠復育者", "微塑膠獵人", "太陽能騎士",
+      "生態結界師", "洋流航海團", "濕地守門人", "星辰觀測所", "火山地熱隊", "循環經濟 guild",
+      "冰川守望者", "黑潮偵查隊", "種子保存庫", "大氣修補師", "森海同盟", "氣候解謎社"
     ];
 
     const $ = (id) => document.getElementById(id);
@@ -692,7 +745,7 @@
     function refreshRandomPreview() {
       const count = parsePositiveInt(els.groupCount.value);
       if (!count) {
-        els.randomNamePreview.textContent = "請先輸入分組數量。";
+        els.randomNamePreview.textContent = "請先輸入國家小隊數量。";
         return;
       }
       const names = generateRandomNames(count);
@@ -740,15 +793,15 @@
       const total = parsePositiveInt(els.studentCount.value);
       const groupCount = parsePositiveInt(els.groupCount.value);
 
-      if (!total) return { ok: false, message: "班級人數必須是大於0的整數。" };
-      if (!groupCount) return { ok: false, message: "分組數量必須是大於0的整數。" };
-      if (groupCount > total) return { ok: false, message: "分組數量不能大於班級人數。" };
+      if (!total) return { ok: false, message: "轉生勇者人數必須是大於0的整數。" };
+      if (!groupCount) return { ok: false, message: "國家小隊數量必須是大於0的整數。" };
+      if (groupCount > total) return { ok: false, message: "國家小隊數量不能大於轉生勇者人數。" };
 
       let names;
       if (getNameMode() === "manual") {
         names = getManualNames();
         if (names.length !== groupCount) {
-          return { ok: false, message: `手動組名數量需等於分組數量。目前輸入 ${names.length} 個組名，分組數量為 ${groupCount}。` };
+          return { ok: false, message: `手動國家名數量需等於國家小隊數量。目前輸入 ${names.length} 個組名，國家小隊數量為 ${groupCount}。` };
         }
       } else {
         names = getRandomNames(groupCount);
@@ -756,7 +809,7 @@
 
       const duplicateNames = names.filter((name, idx) => names.indexOf(name) !== idx);
       if (duplicateNames.length > 0) {
-        return { ok: false, message: "組別名稱不可重複。" };
+        return { ok: false, message: "國家名稱不可重複。" };
       }
 
       return { ok: true, total, groupCount, names };
@@ -766,12 +819,12 @@
       const sizes = calculateMaxSizes(total, groupCount);
       const sizeText = summarizeSizes(sizes);
       return [
-        `班級人數：${total}人`,
-        `分組數量：${groupCount}組`,
-        `分配方式：${sizeText}`,
-        `組別名稱：${names.join("、")}`,
+        `轉生勇者人數：${total}人`,
+        `國家小隊數量：${groupCount}組`,
+        `戰力分配：${sizeText}`,
+        `國家名稱：${names.join("、")}`,
         "",
-        "各組容量：",
+        "各國家容量：",
         ...names.map((name, i) => `${name}：${sizes[i]}人`)
       ].join("\n");
     }
@@ -804,7 +857,7 @@
       els.conditionSummary.textContent = buildSummary(total, groupCount, names);
       state.prepared = true;
       els.startBtn.disabled = false;
-      showMessage(els.setupMessage, "ok", "條件摘要已產生。確認後可進入抽籤頁面。");
+      showMessage(els.setupMessage, "ok", "條件摘要已產生。確認後可進入勇者召喚頁面。");
     }
 
     function startDraw() {
@@ -828,7 +881,7 @@
       state.nextAutoNumber = 1;
 
       clearMessage(els.drawMessage);
-      els.latestResult.textContent = "尚未抽籤";
+      els.latestResult.textContent = "尚未勇者召喚";
       els.drawCode.value = "";
 
       renderDrawPage();
@@ -860,7 +913,7 @@
       }).join("");
 
       if (state.history.length === 0) {
-        els.historyList.innerHTML = `<span class="empty">尚無抽籤紀錄。</span>`;
+        els.historyList.innerHTML = `<span class="empty">尚無勇者召喚紀錄。</span>`;
       } else {
         els.historyList.innerHTML = state.history
           .map((item, idx) => `<div>第${idx + 1}抽：${escapeHtml(item.code)} → ${escapeHtml(item.groupName)}</div>`)
@@ -882,13 +935,13 @@
 
       const code = els.drawCode.value.trim();
       if (!code) {
-        showMessage(els.drawMessage, "error", "請先輸入抽籤人或抽籤紀錄代號。");
+        showMessage(els.drawMessage, "error", "請先輸入勇者召喚人或勇者召喚紀錄代號。");
         els.drawCode.focus();
         return;
       }
 
       if (state.usedCodes.has(code)) {
-        showMessage(els.drawMessage, "error", "此代號已完成抽籤，不能重複抽籤。");
+        showMessage(els.drawMessage, "error", "此代號已完成勇者召喚，不能重複勇者召喚。");
         els.drawCode.select();
         return;
       }
@@ -907,8 +960,8 @@
       state.usedCodes.add(code);
       state.history.push({ code, groupName: chosen.name });
 
-      els.latestResult.textContent = `抽籤代號「${code}」是「${chosen.name}」`;
-      showMessage(els.drawMessage, "ok", `抽籤完成：${code} → ${chosen.name}`);
+      els.latestResult.textContent = `勇者召喚代號「${code}」是「${chosen.name}」`;
+      showMessage(els.drawMessage, "ok", `勇者召喚完成：${code} → ${chosen.name}`);
       els.drawCode.value = "";
       renderDrawPage();
 
@@ -935,13 +988,13 @@
       });
 
       const lines = [];
-      lines.push("本次分組抽籤結果");
-      lines.push(`產生時間：${timestamp}`);
-      lines.push(`班級人數：${state.total}人`);
-      lines.push(`分組數量：${state.groupCount}組`);
-      lines.push(`分配方式：${summarizeSizes(state.maxSizes)}`);
+      lines.push("本次分組勇者召喚結果");
+      lines.push(`編成時間：${timestamp}`);
+      lines.push(`轉生勇者人數：${state.total}人`);
+      lines.push(`國家小隊數量：${state.groupCount}組`);
+      lines.push(`戰力分配：${summarizeSizes(state.maxSizes)}`);
       lines.push("");
-      lines.push("一、分組名單");
+      lines.push("一、國家名單");
       lines.push("");
 
       state.groups.forEach(group => {
@@ -954,7 +1007,7 @@
         lines.push("");
       });
 
-      lines.push("二、抽籤順序");
+      lines.push("二、勇者召喚順序");
       state.history.forEach((item, index) => {
         lines.push(`第${index + 1}抽：${item.code} → ${item.groupName}`);
       });
@@ -966,11 +1019,11 @@
     async function copyResult() {
       try {
         await navigator.clipboard.writeText(els.resultOutput.value);
-        showMessage(els.resultMessage, "ok", "結果文字已複製。");
+        showMessage(els.resultMessage, "ok", "編成結果已複製。");
       } catch (err) {
         els.resultOutput.select();
         document.execCommand("copy");
-        showMessage(els.resultMessage, "ok", "結果文字已複製。");
+        showMessage(els.resultMessage, "ok", "編成結果已複製。");
       }
     }
 
@@ -988,9 +1041,9 @@
       els.studentCount.value = "";
       els.groupCount.value = "";
       els.manualGroupNames.value = "";
-      els.conditionSummary.textContent = "尚未產生條件摘要。";
+      els.conditionSummary.textContent = "尚未產生任務摘要。";
       els.randomNamePreview.textContent = "";
-      els.latestResult.textContent = "尚未抽籤";
+      els.latestResult.textContent = "尚未勇者召喚";
       els.drawCode.value = "";
       els.resultOutput.value = "";
       els.startBtn.disabled = true;
@@ -1006,7 +1059,7 @@
       els.groupCount.value = "6";
       document.querySelector("input[name='nameMode'][value='manual']").checked = true;
       updateNameModeUI();
-      els.manualGroupNames.value = ["第一組", "第二組", "第三組", "第四組", "第五組", "第六組"].join("\n");
+      els.manualGroupNames.value = ["森林守護者", "潮汐巡禮者", "碳循環術士", "極光觀測團", "珊瑚修復隊", "風暴預報師"].join("\n");
       previewSetup();
     }
 
@@ -1014,7 +1067,7 @@
       while (state.usedCodes.has(String(state.nextAutoNumber).padStart(2, "0"))) {
         state.nextAutoNumber++;
       }
-      const code = "座號" + String(state.nextAutoNumber).padStart(2, "0");
+      const code = "勇者" + String(state.nextAutoNumber).padStart(2, "0");
       state.nextAutoNumber++;
       els.drawCode.value = code;
       els.drawCode.focus();
